@@ -9,63 +9,55 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(-45deg, #1e3c72, #2a5298, #6fb1fc, #a1c4fd);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #002244;
+      background-color: #000; /* black background */
+      color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
     .container {
-      background: white;
-      padding: 2.5rem;
+      background: #0a0a23;
+      padding: 2rem;
       border-radius: 20px;
       max-width: 700px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0, 0, 100, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 100, 255, 0.4);
+      border: 1px solid rgba(0, 100, 255, 0.3);
     }
 
     h1 {
       text-align: center;
-      color: #0052D4;
-      margin-bottom: 2rem;
-      font-size: 2.2rem;
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+      color: #4facfe;
+      font-size: 2.4rem;
+      margin-bottom: 1.5rem;
     }
 
     h3 {
-      color: #003366;
-      margin-top: 2rem;
-      font-size: 1.3rem;
-      border-left: 4px solid #0052D4;
+      color: #ffffff;
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #4facfe;
       padding-left: 10px;
     }
 
     input {
-      background: #f5f9ff;
-      border: 2px solid #d0e3ff;
+      background: #111;
+      border: 2px solid #4facfe;
       border-radius: 10px;
       padding: 12px;
       font-size: 1rem;
       margin: 0.4rem 0;
+      color: #fff;
       width: 100%;
-      transition: 0.3s;
     }
 
     input:focus {
-      border-color: #007BFF;
       outline: none;
-      box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+      border-color: #00d4ff;
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
     }
 
     button {
@@ -74,7 +66,7 @@
       color: white;
       padding: 12px;
       margin-top: 0.8rem;
-      border-radius: 12px;
+      border-radius: 10px;
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
@@ -88,31 +80,31 @@
     }
 
     .output {
-      background: #eef5ff;
-      border-left: 4px solid #0052D4;
+      background: #111;
+      border-left: 4px solid #4facfe;
       padding: 1rem;
       margin-top: 1.5rem;
       border-radius: 10px;
-      font-family: 'Courier New', monospace;
-      color: #002244;
+      font-family: monospace;
+      color: #d1eaff;
       white-space: pre-wrap;
-    }
-
-    .section {
-      margin-bottom: 2rem;
     }
 
     #walletStatus {
       text-align: center;
       font-weight: bold;
-      color: green;
       margin-bottom: 10px;
+      color: #00ffae;
+    }
+
+    .section {
+      margin-bottom: 2rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🌍 Land Registry System</h1>
+    <h1>🌐 Land Registry System</h1>
     <div id="walletStatus">🔌 Connecting to MetaMask...</div>
 
     <div class="section">
@@ -136,11 +128,12 @@
       <button onclick="getLand()">Fetch Land Info</button>
     </div>
 
-    <div class="output" id="output">📄 Output will be shown here...</div>
+    <div class="output" id="output">📄 Output will appear here...</div>
   </div>
 
   <script>
-    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // <-- Replace this!
+    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace with your actual address
+
     const abi = [
       {
         "inputs": [
@@ -188,12 +181,13 @@
           contract = new ethers.Contract(contractAddress, abi, signer);
           document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
         } catch (err) {
-          console.error("🛑 Connection failed:", err);
-          alert("MetaMask connection failed. See console.");
+          console.error("Connection error:", err);
+          alert("❌ Connection failed. See console.");
+          document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
         }
       } else {
-        alert("❌ MetaMask not detected. Please install it first.");
-        document.getElementById("walletStatus").innerText = "🔴 MetaMask not installed.";
+        alert("❌ MetaMask is not installed.");
+        document.getElementById("walletStatus").innerText = "🔴 MetaMask not found.";
       }
     }
 
@@ -207,7 +201,7 @@
       try {
         const tx = await contract.registerLand(id, location, area);
         await tx.wait();
-        document.getElementById("output").innerText = ✅ Land Registered\nTx Hash: ${tx.hash};
+        document.getElementById("output").innerText = ✅ Land Registered!\nTx Hash: ${tx.hash};
       } catch (err) {
         document.getElementById("output").innerText = ❌ Error: ${err.message};
       }
@@ -220,7 +214,7 @@
       try {
         const tx = await contract.transferLand(id, newOwner);
         await tx.wait();
-        document.getElementById("output").innerText = ✅ Ownership Transferred\nTx Hash: ${tx.hash};
+        document.getElementById("output").innerText = ✅ Land Transferred!\nTx Hash: ${tx.hash};
       } catch (err) {
         document.getElementById("output").innerText = ❌ Error: ${err.message};
       }
@@ -232,7 +226,7 @@
       try {
         const land = await contract.getLand(id);
         document.getElementById("output").innerText = `
-🔍 Land Info:
+🌍 Land Info:
 • ID: ${land[0]}
 • Location: ${land[1]}
 • Area: ${land[2]} sq ft

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Land Registry System</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <style>
-    /* Body Gradient Background */
     body {
       margin: 0;
       padding: 0;
@@ -26,7 +25,6 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* Container Card */
     .container {
       background: white;
       padding: 2.5rem;
@@ -34,7 +32,6 @@
       max-width: 700px;
       width: 100%;
       box-shadow: 0 10px 30px rgba(0, 0, 100, 0.25);
-      backdrop-filter: blur(6px);
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
@@ -104,11 +101,19 @@
     .section {
       margin-bottom: 2rem;
     }
+
+    #walletStatus {
+      text-align: center;
+      font-weight: bold;
+      color: green;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🌍 Land Registry System</h1>
+    <div id="walletStatus">🔌 Connecting to MetaMask...</div>
 
     <div class="section">
       <h3>Register New Land</h3>
@@ -135,7 +140,7 @@
   </div>
 
   <script>
-    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace with your deployed contract address
+    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // <-- Replace this!
     const abi = [
       {
         "inputs": [
@@ -175,13 +180,20 @@
     let provider, signer, contract;
 
     async function connect() {
-      if (window.ethereum) {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-        contract = new ethers.Contract(contractAddress, abi, signer);
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          provider = new ethers.BrowserProvider(window.ethereum);
+          signer = await provider.getSigner();
+          contract = new ethers.Contract(contractAddress, abi, signer);
+          document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
+        } catch (err) {
+          console.error("🛑 Connection failed:", err);
+          alert("MetaMask connection failed. See console.");
+        }
       } else {
-        alert("MetaMask is required to use this system.");
+        alert("❌ MetaMask not detected. Please install it first.");
+        document.getElementById("walletStatus").innerText = "🔴 MetaMask not installed.";
       }
     }
 

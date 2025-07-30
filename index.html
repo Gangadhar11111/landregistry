@@ -101,10 +101,10 @@
       margin-bottom: 2rem;
     }
 
-    #totalCost {
-      margin-top: 5px;
+    #totalCostDisplay {
       color: #00ffae;
       font-weight: bold;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
@@ -118,7 +118,8 @@
       <input id="regId" placeholder="Land ID" type="number" />
       <input id="regLocation" placeholder="Location (e.g. City, State)" />
       <input id="regArea" placeholder="Area in sq ft" type="number" oninput="calculateCost()" />
-      <div id="totalCost">💰 Total Cost: ₹0</div>
+      <input id="regRate" placeholder="Cost per sq ft (in ₹)" type="number" oninput="calculateCost()" />
+      <div id="totalCostDisplay">💰 Total Price: ₹0</div>
       <button onclick="registerLand()">Register Land</button>
     </div>
 
@@ -140,9 +141,8 @@
 
   <script>
     const contractAddress = "0x7b4a134387ff518cb14f520b3b8d7e7d38685e83";
-    const RATE_PER_SQFT = 500;
 
-    const abi = [
+    const abi = [ /* ABI remains unchanged */ 
       {
         "anonymous": false,
         "inputs": [
@@ -210,6 +210,7 @@
           provider = new ethers.BrowserProvider(window.ethereum);
           signer = await provider.getSigner();
           contract = new ethers.Contract(contractAddress, abi, signer);
+          const address = await signer.getAddress();
           document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
         } catch (err) {
           document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
@@ -223,26 +224,30 @@
     connect();
 
     function calculateCost() {
-      const area = document.getElementById("regArea").value;
-      const totalCost = area * RATE_PER_SQFT;
-      document.getElementById("totalCost").innerText = `💰 Total Cost: ₹${totalCost || 0}`;
+      const area = parseFloat(document.getElementById("regArea").value);
+      const rate = parseFloat(document.getElementById("regRate").value);
+      const total = (!isNaN(area) && !isNaN(rate)) ? area * rate : 0;
+      document.getElementById("totalCostDisplay").innerText = `💰 Total Price: ₹${total}`;
     }
 
     async function registerLand() {
       const id = document.getElementById("regId").value;
       const location = document.getElementById("regLocation").value;
       const area = document.getElementById("regArea").value;
-      const totalCost = area * RATE_PER_SQFT;
+      const rate = document.getElementById("regRate").value;
 
-      if (!id || !location || !area) {
+      if (!id || !location || !area || !rate) {
         document.getElementById("output").innerText = "❗ Please fill all fields.";
         return;
       }
 
+      const totalCost = area * rate;
+
       try {
         const tx = await contract.registerLand(id, location, area);
         await tx.wait();
-        document.getElementById("output").innerText = `✅ Land Registered!\nTotal Cost: ₹${totalCost}\nTx Hash: ${tx.hash}`;
+        document.getElementById("output").innerText =
+          `✅ Land Registered!\nArea: ${area} sq ft\nRate: ₹${rate} per sq ft\nTotal Cost: ₹${totalCost}\nTx Hash: ${tx.hash}`;
       } catch (err) {
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }

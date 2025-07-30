@@ -7,145 +7,95 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px;
       font-family: 'Segoe UI', sans-serif;
       background-color: #000;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      background: #0a0a23;
-      padding: 2rem;
-      border-radius: 20px;
-      max-width: 700px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(0, 100, 255, 0.4);
-      border: 1px solid rgba(0, 100, 255, 0.3);
+      color: #fff;
     }
     h1 {
       text-align: center;
-      color: #4facfe;
-      font-size: 2.4rem;
-      margin-bottom: 1.5rem;
-    }
-    h3 {
-      color: #ffffff;
-      font-size: 1.2rem;
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      border-left: 4px solid #4facfe;
-      padding-left: 10px;
-    }
-    input {
-      background: #111;
-      border: 2px solid #4facfe;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 1rem;
-      margin: 0.4rem 0;
-      color: #fff;
-      width: 100%;
-    }
-    input:focus {
-      outline: none;
-      border-color: #00d4ff;
-      box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
-    }
-    button {
-      background: linear-gradient(to right, #0052D4, #4364F7);
-      border: none;
-      color: white;
-      padding: 12px;
-      margin-top: 0.8rem;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: 0.3s ease-in-out;
-    }
-    button:hover {
-      background: linear-gradient(to right, #003c9e, #2840b0);
-      box-shadow: 0 0 12px rgba(0, 100, 255, 0.4);
-    }
-    .output {
-      background: #111;
-      border-left: 4px solid #4facfe;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      border-radius: 10px;
-      font-family: monospace;
-      color: #d1eaff;
-      white-space: pre-wrap;
-    }
-    #walletStatus {
-      text-align: center;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #00ffae;
+      color: #0f0;
     }
     .section {
-      margin-bottom: 2rem;
+      margin: 20px auto;
+      max-width: 500px;
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0f0;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    input {
+      background: #222;
+      color: #0f0;
+    }
+    button {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0c0;
+    }
+    #output {
+      white-space: pre-wrap;
+      background: #222;
+      padding: 15px;
+      margin-top: 10px;
+      border-radius: 5px;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌐 Land Registry System</h1>
-    <div id="walletStatus">🔌 Connecting to MetaMask...</div>
+  <h1>🏡 Land Registry System</h1>
+  <div id="walletStatus">🔌 Connecting to MetaMask...</div>
 
-    <div class="section">
-      <h3>Register New Land</h3>
-      <input id="regId" placeholder="Land ID" type="number" />
-      <input id="regLocation" placeholder="Location (e.g. City, State)" />
-      <input id="regArea" placeholder="Area in sq ft" type="number" />
-      <button onclick="registerLand()">Register Land</button>
-    </div>
+  <!-- Rate Display -->
+  <div class="section">
+    <h3>Rate Details</h3>
+    <input id="rateDisplay" value="₹500 per sq ft" readonly />
+  </div>
 
-    <div class="section">
-      <h3>Transfer Ownership</h3>
-      <input id="transId" placeholder="Land ID to Transfer" type="number" />
-      <input id="newOwner" placeholder="New Owner's Wallet Address" />
-      <button onclick="transferLand()">Transfer Land</button>
-    </div>
+  <!-- Register Land -->
+  <div class="section">
+    <h3>📋 Register Land</h3>
+    <input id="landId" placeholder="Land ID" />
+    <input id="location" placeholder="Location" />
+    <input id="area" placeholder="Area (sq ft)" />
+    <button onclick="registerLand()">Register</button>
+  </div>
 
-    <div class="section">
-      <h3>Get Land Information</h3>
-      <input id="getId" placeholder="Enter Land ID" type="number" />
-      <button onclick="getLand()">Fetch Land Info</button>
-    </div>
+  <!-- Transfer Land -->
+  <div class="section">
+    <h3>🔁 Transfer Land</h3>
+    <input id="transferId" placeholder="Land ID" />
+    <input id="newOwner" placeholder="New Owner Address" />
+    <button onclick="transferLand()">Transfer</button>
+  </div>
 
-    <div class="output" id="output">📄 Output will appear here...</div>
+  <!-- Get Land Info -->
+  <div class="section">
+    <h3>🔍 Get Land Info</h3>
+    <input id="getId" placeholder="Land ID" />
+    <button onclick="getLand()">Fetch Land Info</button>
+    <div id="output"></div>
   </div>
 
   <script>
-    const contractAddress = "0x7b4a134387ff518cb14f520b3b8d7e7d38685e83";
+    let provider, signer, contract;
 
-    const abi = [
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-          { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
-          { "indexed": false, "internalType": "string", "name": "location", "type": "string" },
-          { "indexed": false, "internalType": "uint256", "name": "area", "type": "uint256" }
-        ],
-        "name": "LandRegistered",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-          { "indexed": true, "internalType": "address", "name": "oldOwner", "type": "address" },
-          { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
-        ],
-        "name": "LandTransferred",
-        "type": "event"
-      },
+    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace with your actual deployed contract address
+    const contractABI = [
       {
         "inputs": [
           { "internalType": "uint256", "name": "_id", "type": "uint256" },
@@ -168,9 +118,20 @@
         "type": "function"
       },
       {
-        "inputs": [
-          { "internalType": "uint256", "name": "_id", "type": "uint256" }
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "lands",
+        "outputs": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "string", "name": "location", "type": "string" },
+          { "internalType": "uint256", "name": "area", "type": "uint256" },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "bool", "name": "exists", "type": "bool" }
         ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "_id", "type": "uint256" }],
         "name": "getLand",
         "outputs": [
           { "internalType": "uint256", "name": "", "type": "uint256" },
@@ -183,52 +144,46 @@
       }
     ];
 
-    let provider, signer, contract;
-
-    async function connect() {
-      if (typeof window.ethereum !== 'undefined') {
-        try {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+    async function connectToMetaMask() {
+      try {
+        if (window.ethereum) {
           provider = new ethers.BrowserProvider(window.ethereum);
+          await window.ethereum.request({ method: "eth_requestAccounts" });
           signer = await provider.getSigner();
-          contract = new ethers.Contract(contractAddress, abi, signer);
-          const address = await signer.getAddress();
-          document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
-        } catch (err) {
-          document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
+          contract = new ethers.Contract(contractAddress, contractABI, signer);
+          document.getElementById("walletStatus").innerText = "✅ Connected: " + signer.address;
+        } else {
+          document.getElementById("walletStatus").innerText = "❌ Please install MetaMask!";
         }
-      } else {
-        alert("❌ MetaMask is not installed.");
-        document.getElementById("walletStatus").innerText = "🔴 MetaMask not found.";
+      } catch (error) {
+        document.getElementById("walletStatus").innerText = "❌ Error connecting: " + error.message;
       }
     }
 
-    connect();
-
     async function registerLand() {
-      const id = document.getElementById("regId").value;
-      const location = document.getElementById("regLocation").value;
-      const area = document.getElementById("regArea").value;
+      const id = document.getElementById("landId").value;
+      const location = document.getElementById("location").value;
+      const area = document.getElementById("area").value;
 
       try {
         const tx = await contract.registerLand(id, location, area);
         await tx.wait();
-        document.getElementById("output").innerText = `✅ Land Registered!\nTx Hash: ${tx.hash}`;
+        alert("✅ Land registered successfully!");
       } catch (err) {
-        document.getElementById("output").innerText = `❌ Error: ${err.message}`;
+        alert("❌ Error registering land: " + err.message);
       }
     }
 
     async function transferLand() {
-      const id = document.getElementById("transId").value;
+      const id = document.getElementById("transferId").value;
       const newOwner = document.getElementById("newOwner").value;
 
       try {
         const tx = await contract.transferLand(id, newOwner);
         await tx.wait();
-        document.getElementById("output").innerText = `✅ Land Transferred!\nTx Hash: ${tx.hash}`;
+        alert("✅ Land ownership transferred!");
       } catch (err) {
-        document.getElementById("output").innerText = `❌ Error: ${err.message}`;
+        alert("❌ Error transferring land: " + err.message);
       }
     }
 
@@ -253,6 +208,8 @@
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }
     }
+
+    connectToMetaMask();
   </script>
 </body>
 </html>

@@ -16,6 +16,7 @@
       align-items: center;
       min-height: 100vh;
     }
+
     .container {
       background: #0a0a23;
       padding: 2rem;
@@ -25,12 +26,14 @@
       box-shadow: 0 10px 30px rgba(0, 100, 255, 0.4);
       border: 1px solid rgba(0, 100, 255, 0.3);
     }
+
     h1 {
       text-align: center;
       color: #4facfe;
       font-size: 2.4rem;
       margin-bottom: 1.5rem;
     }
+
     h3 {
       color: #ffffff;
       font-size: 1.2rem;
@@ -39,6 +42,7 @@
       border-left: 4px solid #4facfe;
       padding-left: 10px;
     }
+
     input {
       background: #111;
       border: 2px solid #4facfe;
@@ -49,11 +53,13 @@
       color: #fff;
       width: 100%;
     }
+
     input:focus {
       outline: none;
       border-color: #00d4ff;
       box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
     }
+
     button {
       background: linear-gradient(to right, #0052D4, #4364F7);
       border: none;
@@ -67,10 +73,12 @@
       width: 100%;
       transition: 0.3s ease-in-out;
     }
+
     button:hover {
       background: linear-gradient(to right, #003c9e, #2840b0);
       box-shadow: 0 0 12px rgba(0, 100, 255, 0.4);
     }
+
     .output {
       background: #111;
       border-left: 4px solid #4facfe;
@@ -81,12 +89,14 @@
       color: #d1eaff;
       white-space: pre-wrap;
     }
+
     #walletStatus {
       text-align: center;
       font-weight: bold;
       margin-bottom: 10px;
       color: #00ffae;
     }
+
     .section {
       margin-bottom: 2rem;
     }
@@ -180,6 +190,21 @@
         ],
         "stateMutability": "view",
         "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "name": "lands",
+        "outputs": [
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "string", "name": "location", "type": "string" },
+          { "internalType": "uint256", "name": "area", "type": "uint256" },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "bool", "name": "exists", "type": "bool" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       }
     ];
 
@@ -234,21 +259,16 @@
 
     async function getLand() {
       const id = document.getElementById("getId").value;
-      const costPerSqFt = 500; // INR ₹500 per sq ft
 
       try {
         const land = await contract.getLand(id);
-        const area = Number(land[2]);
-        const totalCost = area * costPerSqFt;
-
-        document.getElementById("output").innerText =
-          `🌍 Land Info:\n` +
-          `• ID: ${land[0]}\n` +
-          `• Location: ${land[1]}\n` +
-          `• Area: ${area} sq ft\n` +
-          `• Owner: ${land[3]}\n` +
-          `• Cost per sq ft: ₹${costPerSqFt}\n` +
-          `• Total Estimated Cost: ₹${totalCost}`;
+        document.getElementById("output").innerText = `
+🌍 Land Info:
+• ID: ${land[0]}
+• Location: ${land[1]}
+• Area: ${land[2]} sq ft
+• Owner: ${land[3]}
+        `;
       } catch (err) {
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }

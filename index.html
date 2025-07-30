@@ -5,16 +5,12 @@
   <title>Land Registry System</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(145deg, #0f0f1a, #1a0f2d);
-      color: #eae6ff;
+      background-color: #000;
+      color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,22 +18,20 @@
     }
 
     .container {
-      backdrop-filter: blur(10px);
-      background: rgba(30, 15, 50, 0.4);
-      border: 1px solid rgba(200, 100, 255, 0.2);
-      border-radius: 20px;
+      background: #0a0a23;
       padding: 2rem;
-      max-width: 720px;
+      border-radius: 20px;
+      max-width: 700px;
       width: 100%;
-      box-shadow: 0 0 30px rgba(150, 100, 255, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 100, 255, 0.4);
+      border: 1px solid rgba(0, 100, 255, 0.3);
     }
 
     h1 {
       text-align: center;
-      color: #c77dff;
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
-      letter-spacing: 1px;
+      color: #4facfe;
+      font-size: 2.4rem;
+      margin-bottom: 1.5rem;
     }
 
     h3 {
@@ -45,13 +39,13 @@
       font-size: 1.2rem;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
-      border-left: 4px solid #c77dff;
+      border-left: 4px solid #4facfe;
       padding-left: 10px;
     }
 
     input {
-      background: rgba(40, 20, 60, 0.6);
-      border: 1px solid #c77dff;
+      background: #111;
+      border: 2px solid #4facfe;
       border-radius: 10px;
       padding: 12px;
       font-size: 1rem;
@@ -62,12 +56,12 @@
 
     input:focus {
       outline: none;
-      border-color: #ff8af4;
-      box-shadow: 0 0 8px rgba(255, 138, 244, 0.4);
+      border-color: #00d4ff;
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
     }
 
     button {
-      background: linear-gradient(to right, #7209b7, #b5179e);
+      background: linear-gradient(to right, #0052D4, #4364F7);
       border: none;
       color: white;
       padding: 12px;
@@ -81,13 +75,13 @@
     }
 
     button:hover {
-      background: linear-gradient(to right, #560bad, #a4139c);
-      box-shadow: 0 0 15px rgba(200, 100, 255, 0.4);
+      background: linear-gradient(to right, #003c9e, #2840b0);
+      box-shadow: 0 0 12px rgba(0, 100, 255, 0.4);
     }
 
     .output {
-      background: rgba(20, 10, 40, 0.6);
-      border-left: 4px solid #c77dff;
+      background: #111;
+      border-left: 4px solid #4facfe;
       padding: 1rem;
       margin-top: 1.5rem;
       border-radius: 10px;
@@ -100,7 +94,7 @@
       text-align: center;
       font-weight: bold;
       margin-bottom: 10px;
-      color: #f0aaff;
+      color: #00ffae;
     }
 
     .section {
@@ -109,15 +103,15 @@
 
     #totalCost {
       margin-top: 5px;
-      color: #ffb3ff;
+      color: #00ffae;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔮 Land Registry System</h1>
-    <div id="walletStatus">🕐 Connecting to MetaMask...</div>
+    <h1>🌐 Land Registry System</h1>
+    <div id="walletStatus">🔌 Connecting to MetaMask...</div>
 
     <div class="section">
       <h3>Register New Land</h3>
@@ -216,7 +210,7 @@
           provider = new ethers.BrowserProvider(window.ethereum);
           signer = await provider.getSigner();
           contract = new ethers.Contract(contractAddress, abi, signer);
-          document.getElementById("walletStatus").innerText = "🟣 Connected to MetaMask";
+          document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
         } catch (err) {
           document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
         }

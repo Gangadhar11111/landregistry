@@ -100,6 +100,12 @@
     .section {
       margin-bottom: 2rem;
     }
+
+    #calcCost {
+      font-weight: bold;
+      margin-top: 5px;
+      color: #00ffae;
+    }
   </style>
 </head>
 <body>
@@ -112,6 +118,8 @@
       <input id="regId" placeholder="Land ID" type="number" />
       <input id="regLocation" placeholder="Location (e.g. City, State)" />
       <input id="regArea" placeholder="Area in sq ft" type="number" />
+      <input id="regRate" placeholder="Cost per sq ft (in ₹)" type="number" />
+      <div id="calcCost"></div>
       <button onclick="registerLand()">Register Land</button>
     </div>
 
@@ -190,21 +198,6 @@
         ],
         "stateMutability": "view",
         "type": "function"
-      },
-      {
-        "inputs": [
-          { "internalType": "uint256", "name": "", "type": "uint256" }
-        ],
-        "name": "lands",
-        "outputs": [
-          { "internalType": "uint256", "name": "id", "type": "uint256" },
-          { "internalType": "string", "name": "location", "type": "string" },
-          { "internalType": "uint256", "name": "area", "type": "uint256" },
-          { "internalType": "address", "name": "owner", "type": "address" },
-          { "internalType": "bool", "name": "exists", "type": "bool" }
-        ],
-        "stateMutability": "view",
-        "type": "function"
       }
     ];
 
@@ -234,11 +227,20 @@
       const id = document.getElementById("regId").value;
       const location = document.getElementById("regLocation").value;
       const area = document.getElementById("regArea").value;
+      const rate = document.getElementById("regRate").value;
+
+      if (!id || !location || !area || !rate) {
+        document.getElementById("output").innerText = "❗ Please fill all fields.";
+        return;
+      }
+
+      const totalCost = area * rate;
+      document.getElementById("calcCost").innerText = `💰 Total Cost: ₹${totalCost}`;
 
       try {
         const tx = await contract.registerLand(id, location, area);
         await tx.wait();
-        document.getElementById("output").innerText = `✅ Land Registered!\nTx Hash: ${tx.hash}`;
+        document.getElementById("output").innerText = `✅ Land Registered!\nTotal Cost: ₹${totalCost}\nTx Hash: ${tx.hash}`;
       } catch (err) {
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }

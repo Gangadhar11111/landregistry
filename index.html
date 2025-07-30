@@ -101,10 +101,10 @@
       margin-bottom: 2rem;
     }
 
-    #calcCost {
-      font-weight: bold;
+    #totalCost {
       margin-top: 5px;
       color: #00ffae;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -117,9 +117,8 @@
       <h3>Register New Land</h3>
       <input id="regId" placeholder="Land ID" type="number" />
       <input id="regLocation" placeholder="Location (e.g. City, State)" />
-      <input id="regArea" placeholder="Area in sq ft" type="number" />
-      <input id="regRate" placeholder="Cost per sq ft (in ₹)" type="number" />
-      <div id="calcCost"></div>
+      <input id="regArea" placeholder="Area in sq ft" type="number" oninput="calculateCost()" />
+      <div id="totalCost">💰 Total Cost: ₹0</div>
       <button onclick="registerLand()">Register Land</button>
     </div>
 
@@ -141,6 +140,7 @@
 
   <script>
     const contractAddress = "0x7b4a134387ff518cb14f520b3b8d7e7d38685e83";
+    const RATE_PER_SQFT = 500;
 
     const abi = [
       {
@@ -210,7 +210,6 @@
           provider = new ethers.BrowserProvider(window.ethereum);
           signer = await provider.getSigner();
           contract = new ethers.Contract(contractAddress, abi, signer);
-          const address = await signer.getAddress();
           document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
         } catch (err) {
           document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
@@ -223,19 +222,22 @@
 
     connect();
 
+    function calculateCost() {
+      const area = document.getElementById("regArea").value;
+      const totalCost = area * RATE_PER_SQFT;
+      document.getElementById("totalCost").innerText = `💰 Total Cost: ₹${totalCost || 0}`;
+    }
+
     async function registerLand() {
       const id = document.getElementById("regId").value;
       const location = document.getElementById("regLocation").value;
       const area = document.getElementById("regArea").value;
-      const rate = document.getElementById("regRate").value;
+      const totalCost = area * RATE_PER_SQFT;
 
-      if (!id || !location || !area || !rate) {
+      if (!id || !location || !area) {
         document.getElementById("output").innerText = "❗ Please fill all fields.";
         return;
       }
-
-      const totalCost = area * rate;
-      document.getElementById("calcCost").innerText = `💰 Total Cost: ₹${totalCost}`;
 
       try {
         const tx = await contract.registerLand(id, location, area);

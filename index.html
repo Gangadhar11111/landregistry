@@ -234,17 +234,18 @@
 
     async function getLand() {
       const id = document.getElementById("getId").value;
-      const costPerSqFt = 500;
+      const costPerSqFt = 500; // INR ₹500 per sq ft
 
       try {
         const land = await contract.getLand(id);
-        const totalCost = land[2] * costPerSqFt;
+        const area = Number(land[2]);
+        const totalCost = area * costPerSqFt;
 
         document.getElementById("output").innerText =
           `🌍 Land Info:\n` +
           `• ID: ${land[0]}\n` +
           `• Location: ${land[1]}\n` +
-          `• Area: ${land[2]} sq ft\n` +
+          `• Area: ${area} sq ft\n` +
           `• Owner: ${land[3]}\n` +
           `• Cost per sq ft: ₹${costPerSqFt}\n` +
           `• Total Estimated Cost: ₹${totalCost}`;

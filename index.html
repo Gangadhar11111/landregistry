@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <title>Land Registry System</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -106,6 +112,14 @@
       font-weight: bold;
       margin-top: 0.5rem;
     }
+
+    #map {
+      height: 200px;
+      width: 100%;
+      margin-top: 0.5rem;
+      border-radius: 10px;
+      border: 2px solid #4facfe;
+    }
   </style>
 </head>
 <body>
@@ -116,7 +130,8 @@
     <div class="section">
       <h3>Register New Land</h3>
       <input id="regId" placeholder="Land ID" type="number" />
-      <input id="regLocation" placeholder="Location (e.g. City, State)" />
+      <input id="regLocation" placeholder="Location (Click map to auto-fill)" />
+      <div id="map"></div>
       <input id="regArea" placeholder="Area in sq ft" type="number" oninput="calculateCost()" />
       <input id="regRate" placeholder="Cost per sq ft (in ₹)" type="number" oninput="calculateCost()" />
       <div id="totalCostDisplay">💰 Total Price: ₹0</div>
@@ -142,7 +157,7 @@
   <script>
     const contractAddress = "0x7b4a134387ff518cb14f520b3b8d7e7d38685e83";
 
-    const abi = [ /* ABI remains unchanged */ 
+    const abi = [/* ABI remains same as before */ 
       {
         "anonymous": false,
         "inputs": [
@@ -210,7 +225,6 @@
           provider = new ethers.BrowserProvider(window.ethereum);
           signer = await provider.getSigner();
           contract = new ethers.Contract(contractAddress, abi, signer);
-          const address = await signer.getAddress();
           document.getElementById("walletStatus").innerText = "🟢 Connected to MetaMask";
         } catch (err) {
           document.getElementById("walletStatus").innerText = "🔴 Connection failed.";
@@ -247,7 +261,7 @@
         const tx = await contract.registerLand(id, location, area);
         await tx.wait();
         document.getElementById("output").innerText =
-          `✅ Land Registered!\nArea: ${area} sq ft\nRate: ₹${rate} per sq ft\nTotal Cost: ₹${totalCost}\nTx Hash: ${tx.hash}`;
+          `✅ Land Registered!\nLocation: ${location}\nArea: ${area} sq ft\nRate: ₹${rate}/sq ft\nTotal: ₹${totalCost}\nTx Hash: ${tx.hash}`;
       } catch (err) {
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }
@@ -276,12 +290,26 @@
 • ID: ${land[0]}
 • Location: ${land[1]}
 • Area: ${land[2]} sq ft
-• Owner: ${land[3]}
-        `;
+• Owner: ${land[3]}`;
       } catch (err) {
         document.getElementById("output").innerText = `❌ Error: ${err.message}`;
       }
     }
+
+    // Initialize Leaflet map
+    const map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker;
+    map.on('click', function (e) {
+      const latlng = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      document.getElementById("regLocation").value = latlng;
+
+      if (marker) map.removeLayer(marker);
+      marker = L.marker(e.latlng).addTo(map).bindPopup("Selected Location").openPopup();
+    });
   </script>
 </body>
 </html>
